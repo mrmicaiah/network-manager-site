@@ -4,7 +4,7 @@
 
 The Bethany marketing site is built with Eleventy and deployed to Cloudflare Pages.
 
-- **Live URL:** https://bethany.untitledpublishers.com
+- **Live URL:** https://network-manager-site.pages.dev
 - **Repository:** mrmicaiah/network-manager-site
 - **API Endpoint:** https://network-manager.micaiah-tasks.workers.dev
 
@@ -29,14 +29,6 @@ The Bethany marketing site is built with Eleventy and deployed to Cloudflare Pag
 ### 2. Environment Variables
 
 No environment variables required for the marketing site. All configuration is in `src/_data/site.json`.
-
-### 3. Custom Domain
-
-1. Go to your Pages project → Custom domains
-2. Add `bethany.untitledpublishers.com`
-3. Cloudflare will provide DNS records to add:
-   - If using Cloudflare DNS: Automatic verification
-   - If external DNS: Add CNAME record pointing to `<project>.pages.dev`
 
 ---
 
@@ -107,22 +99,12 @@ network-manager-site/
   "title": "Bethany",
   "tagline": "Your relationship memory",
   "description": "Bethany helps you stay connected...",
-  "url": "https://bethany.untitledpublishers.com",
+  "url": "https://network-manager-site.pages.dev",
   "apiUrl": "https://network-manager.micaiah-tasks.workers.dev"
 }
 ```
 
 **Important:** The `apiUrl` is used by the signup form to POST user data.
-
-### Future: Dashboard URL
-
-When the React dashboard is deployed, add to site.json:
-
-```json
-{
-  "dashboardUrl": "https://app.bethany.untitledpublishers.com"
-}
-```
 
 ---
 
@@ -143,7 +125,6 @@ When the React dashboard is deployed, add to site.json:
 2. JavaScript POSTs to `{{ site.apiUrl }}/signup`
 3. Worker creates user, sends welcome SMS via SendBlue
 4. Success modal displays
-5. **(TODO)** Redirect to dashboard login
 
 ### API Integration
 
@@ -160,17 +141,13 @@ The signup form sends:
 
 ### CORS
 
-The Worker already has CORS configured with `Access-Control-Allow-Origin: '*'` so cross-origin requests from the marketing site work.
+The Worker has CORS configured with `Access-Control-Allow-Origin: '*'` so cross-origin requests work.
 
 ---
 
 ## SSL/HTTPS
 
-Cloudflare Pages automatically provisions SSL certificates for:
-- The default `*.pages.dev` domain
-- Any custom domains added
-
-No additional SSL configuration needed.
+Cloudflare Pages automatically provisions SSL certificates for the `*.pages.dev` domain.
 
 ---
 
@@ -186,8 +163,8 @@ Every push to `main` triggers an automatic build and deployment on Cloudflare Pa
 # Build locally
 npm run build
 
-# Deploy via Wrangler (alternative method)
-npx wrangler pages deploy _site --project-name=bethany-site
+# Deploy via Wrangler
+npx wrangler pages deploy _site --project-name=network-manager-site
 ```
 
 ---
@@ -196,11 +173,11 @@ npx wrangler pages deploy _site --project-name=bethany-site
 
 After deployment, verify:
 
-- [ ] Home page loads at https://bethany.untitledpublishers.com
-- [ ] Signup page loads at https://bethany.untitledpublishers.com/signup
-- [ ] Terms page loads at https://bethany.untitledpublishers.com/terms
-- [ ] Privacy page loads at https://bethany.untitledpublishers.com/privacy
-- [ ] Signup form submits successfully (test with real phone number)
+- [ ] Home page loads at https://network-manager-site.pages.dev
+- [ ] Signup page loads at https://network-manager-site.pages.dev/signup
+- [ ] Terms page loads at https://network-manager-site.pages.dev/terms
+- [ ] Privacy page loads at https://network-manager-site.pages.dev/privacy
+- [ ] Signup form submits successfully
 - [ ] User receives welcome SMS after signup
 - [ ] HTTPS works (green padlock)
 - [ ] All internal links work
@@ -232,21 +209,6 @@ After deployment, verify:
 The Worker should already handle CORS. If issues:
 1. Verify preflight OPTIONS request returns correct headers
 2. Check `shared/http.ts` for CORS configuration
-
-### Custom Domain Not Working
-
-1. Verify DNS records are correct
-2. Check Cloudflare Pages → Custom domains for status
-3. Wait for DNS propagation (can take up to 48 hours for external DNS)
-
----
-
-## Future Enhancements
-
-1. **Dashboard Redirect** - After signup, redirect to `app.bethany.untitledpublishers.com/login?welcome=true`
-2. **Blog/Content** - Add Eleventy blog collection for content marketing
-3. **Pricing Page** - Add `/pricing` page when ready for premium tier launch
-4. **FAQ Page** - Add `/faq` based on common questions
 
 ---
 
