@@ -78,8 +78,11 @@ description: Sign up for Bethany and start staying connected to the people who m
       <span class="text-4xl">🎉</span>
     </div>
     <h2 class="font-display text-3xl font-medium text-charcoal mb-4">You're all set!</h2>
-    <p class="text-charcoal-light text-lg mb-6">Check your phone—I just sent you a welcome message. Reply anytime to start adding people to keep in touch with.</p>
-    <a href="/" class="btn-secondary">Back to home</a>
+    <p class="text-charcoal-light text-lg mb-6">Check your phone—I just sent you a welcome message. You can also log in to your dashboard to manage your contacts.</p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="{{ site.dashboardUrl }}/login?welcome=true" class="btn-primary">Go to Dashboard</a>
+      <a href="/" class="btn-secondary">Back to home</a>
+    </div>
   </div>
 </div>
 
@@ -92,6 +95,7 @@ description: Sign up for Bethany and start staying connected to the people who m
   const formError = document.getElementById('form-error');
   const successModal = document.getElementById('success-modal');
   const API_URL = '{{ site.apiUrl }}';
+  const DASHBOARD_URL = '{{ site.dashboardUrl }}';
 
   const phoneInput = document.getElementById('phone');
   phoneInput.addEventListener('input', function(e) {
@@ -149,7 +153,7 @@ description: Sign up for Bethany and start staying connected to the people who m
       const response = await fetch(API_URL + '/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, email: email, phone: '+1' + phone, pin: pin, termsAccepted: terms })
+        body: JSON.stringify({ name: name, email: email, phone: '+1' + phone, pin: pin, termsAccepted: true })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
