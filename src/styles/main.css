@@ -1,0 +1,178 @@
+/* Custom fonts - loaded via link tag in HTML instead to avoid CSS import order issues */
+
+@import "tailwindcss";
+
+/* Theme configuration */
+@theme {
+  /* Typography */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+  
+  /* Colors - warm, personal palette */
+  --color-cream: #faf8f5;
+  --color-cream-dark: #f5f1eb;
+  --color-warm-white: #fefdfb;
+  --color-charcoal: #2d2a26;
+  --color-charcoal-light: #4a453d;
+  --color-terracotta: #c4705e;
+  --color-terracotta-light: #d8927f;
+  --color-terracotta-dark: #a85c4a;
+  --color-sage: #7d9b84;
+  --color-sage-light: #a8c4ae;
+  --color-golden: #c9a962;
+  --color-blush: #e8d5cf;
+  
+  /* Shadows */
+  --shadow-soft: 0 4px 20px rgba(45, 42, 38, 0.08);
+  --shadow-medium: 0 8px 30px rgba(45, 42, 38, 0.12);
+  --shadow-warm: 0 4px 20px rgba(196, 112, 94, 0.15);
+}
+
+/* Base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-cream);
+    color: var(--color-charcoal);
+    line-height: 1.7;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+}
+
+/* Custom component classes */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-4 
+           text-lg font-medium text-warm-white
+           rounded-full transition-all duration-300
+           shadow-warm hover:shadow-medium
+           transform hover:-translate-y-0.5;
+    background-color: var(--color-terracotta);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-terracotta-dark);
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-8 py-4
+           text-lg font-medium rounded-full
+           border-2 transition-all duration-300
+           hover:shadow-soft;
+    color: var(--color-terracotta);
+    border-color: var(--color-terracotta);
+    background-color: transparent;
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--color-terracotta);
+    color: var(--color-warm-white);
+  }
+  
+  .input-field {
+    @apply w-full px-5 py-4 rounded-xl border-2 
+           text-lg transition-all duration-200
+           focus:outline-none focus:ring-0;
+    background-color: var(--color-warm-white);
+    border-color: var(--color-cream-dark);
+  }
+  
+  .input-field:focus {
+    border-color: var(--color-terracotta);
+    box-shadow: 0 0 0 3px rgba(196, 112, 94, 0.1);
+  }
+  
+  .input-field::placeholder {
+    color: var(--color-charcoal-light);
+    opacity: 0.6;
+  }
+  
+  .card {
+    @apply rounded-2xl p-8 shadow-soft;
+    background-color: var(--color-warm-white);
+  }
+  
+  .section-heading {
+    @apply text-4xl md:text-5xl mb-6;
+    font-family: var(--font-display);
+    color: var(--color-charcoal);
+  }
+  
+  .section-subheading {
+    @apply text-xl md:text-2xl max-w-2xl mx-auto;
+    color: var(--color-charcoal-light);
+  }
+}
+
+/* Animations */
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.8s ease-out forwards;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+  .delay-400 { animation-delay: 0.4s; }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Decorative elements */
+.gradient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Phone input styling */
+input[type="tel"] {
+  letter-spacing: 0.05em;
+}
+
+/* Form validation states */
+.input-error {
+  border-color: #dc2626 !important;
+}
+
+.error-message {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Checkbox custom styling */
+input[type="checkbox"] {
+  accent-color: var(--color-terracotta);
+  width: 1.25rem;
+  height: 1.25rem;
+}
