@@ -4,5 +4,5 @@
   "description": "Bethany helps you stay connected to the people who matter most. Gentle nudges via text message, not another app to check.",
   "url": "https://network-manager-site.pages.dev",
   "apiUrl": "https://network-manager.micaiah-tasks.workers.dev",
-  "dashboardUrl": "https://bethany-dashboard.pages.dev"
+  "dashboardUrl": "https://network-manager.pages.dev"
 }
