@@ -7,7 +7,7 @@
     "watch:css": "npx @tailwindcss/cli -i ./src/styles/main.css -o ./_site/styles/main.css --watch",
     "build:11ty": "npx @11ty/eleventy",
     "watch:11ty": "npx @11ty/eleventy --serve",
-    "build": "npm run build:css && npm run build:11ty",
+    "build": "npm run build:11ty && npm run build:css",
     "start": "npm-run-all --parallel watch:*",
     "dev": "npm-run-all --parallel watch:*"
   },
