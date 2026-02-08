@@ -19,29 +19,29 @@ description: Sign up for Bethany and start staying connected to the people who m
     </div>
     
     <div class="card">
-      <form id="signup-form" class="space-y-6" novalidate>
+      <form id="signup-form" class="space-y-6" novalidate autocomplete="off">
         <div>
           <label for="name" class="block text-charcoal font-medium mb-2">What should I call you?</label>
-          <input type="text" id="name" name="name" class="input-field" placeholder="Your first name" required autocomplete="given-name">
+          <input type="text" id="name" name="name" class="input-field" placeholder="Your first name" required autocomplete="off">
           <p class="error-message hidden" data-error="name"></p>
         </div>
         
         <div>
           <label for="email" class="block text-charcoal font-medium mb-2">Email address</label>
-          <input type="email" id="email" name="email" class="input-field" placeholder="you@example.com" required autocomplete="email">
+          <input type="email" id="email" name="email" class="input-field" placeholder="you@example.com" required autocomplete="off">
           <p class="error-message hidden" data-error="email"></p>
         </div>
         
         <div>
           <label for="phone" class="block text-charcoal font-medium mb-2">Phone number</label>
-          <input type="tel" id="phone" name="phone" class="input-field" placeholder="(555) 123-4567" required autocomplete="tel">
+          <input type="tel" id="phone" name="phone" class="input-field" placeholder="(555) 123-4567" required autocomplete="off">
           <p class="text-charcoal-light text-sm mt-1">I'll text you here. US numbers only for now.</p>
           <p class="error-message hidden" data-error="phone"></p>
         </div>
         
         <div>
           <label for="pin" class="block text-charcoal font-medium mb-2">Create a 4-digit PIN</label>
-          <input type="text" id="pin" name="pin" class="input-field" placeholder="1234" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" required>
+          <input type="password" id="pin" name="pin" class="input-field" placeholder="••••" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" required autocomplete="new-password">
           <p class="text-charcoal-light text-sm mt-1">You'll use this to confirm important actions via text.</p>
           <p class="error-message hidden" data-error="pin"></p>
         </div>
@@ -85,8 +85,13 @@ description: Sign up for Bethany and start staying connected to the people who m
   const btnText = document.getElementById('btn-text');
   const btnLoading = document.getElementById('btn-loading');
   const formError = document.getElementById('form-error');
+  const phoneInput = document.getElementById('phone');
+  const pinInput = document.getElementById('pin');
   const API_URL = '{{ site.apiUrl }}';
   const DASHBOARD_URL = '{{ site.dashboardUrl }}';
+
+  // Track cursor position for phone formatting
+  let previousPhoneValue = '';
 
   // Normalize phone to 10 digits (handles +1 prefix from autofill)
   function normalizePhoneDigits(raw) {
@@ -100,23 +105,72 @@ description: Sign up for Bethany and start staying connected to the people who m
 
   // Format phone for display: (555) 123-4567
   function formatPhoneDisplay(digits) {
-    if (digits.length >= 6) {
-      return '(' + digits.slice(0, 3) + ') ' + digits.slice(3, 6) + '-' + digits.slice(6);
-    } else if (digits.length >= 3) {
-      return '(' + digits.slice(0, 3) + ') ' + digits.slice(3);
-    }
-    return digits;
+    if (digits.length === 0) return '';
+    if (digits.length <= 3) return '(' + digits;
+    if (digits.length <= 6) return '(' + digits.slice(0, 3) + ') ' + digits.slice(3);
+    return '(' + digits.slice(0, 3) + ') ' + digits.slice(3, 6) + '-' + digits.slice(6);
   }
 
-  const phoneInput = document.getElementById('phone');
   phoneInput.addEventListener('input', function(e) {
-    const digits = normalizePhoneDigits(e.target.value);
-    e.target.value = formatPhoneDisplay(digits);
+    const cursorPos = e.target.selectionStart;
+    const oldValue = previousPhoneValue;
+    const newRaw = e.target.value;
+    
+    // Get just the digits
+    const digits = normalizePhoneDigits(newRaw);
+    const formatted = formatPhoneDisplay(digits);
+    
+    // Update the value
+    e.target.value = formatted;
+    previousPhoneValue = formatted;
+    
+    // Try to maintain reasonable cursor position
+    // If user is deleting, keep cursor where it was (adjusted for format changes)
+    if (newRaw.length < oldValue.length) {
+      // Deleting - find appropriate cursor position
+      const newCursorPos = Math.min(cursorPos, formatted.length);
+      e.target.setSelectionRange(newCursorPos, newCursorPos);
+    } else {
+      // Adding - put cursor at end of new content
+      e.target.setSelectionRange(formatted.length, formatted.length);
+    }
   });
 
-  const pinInput = document.getElementById('pin');
+  // Handle backspace/delete specially for phone
+  phoneInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      const cursorPos = e.target.selectionStart;
+      const value = e.target.value;
+      
+      // If cursor is right after a formatting character, move it back
+      if (e.key === 'Backspace' && cursorPos > 0) {
+        const charBefore = value[cursorPos - 1];
+        if (charBefore === ')' || charBefore === ' ' || charBefore === '-' || charBefore === '(') {
+          // Find the previous digit and delete that instead
+          e.preventDefault();
+          const digits = normalizePhoneDigits(value);
+          if (digits.length > 0) {
+            const newDigits = digits.slice(0, -1);
+            const formatted = formatPhoneDisplay(newDigits);
+            e.target.value = formatted;
+            previousPhoneValue = formatted;
+            e.target.setSelectionRange(formatted.length, formatted.length);
+          }
+        }
+      }
+    }
+  });
+
+  // PIN - only allow digits, mask input
   pinInput.addEventListener('input', function(e) {
     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+  });
+
+  // Prevent non-digit keypress on PIN
+  pinInput.addEventListener('keypress', function(e) {
+    if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+      e.preventDefault();
+    }
   });
 
   function showError(field, message) {
@@ -185,7 +239,6 @@ description: Sign up for Bethany and start staying connected to the people who m
       }
       
       // Success! Redirect to the dashboard welcome page
-      // The session cookie was set by the API response
       if (data.redirectUrl) {
         window.location.href = data.redirectUrl;
       } else {
