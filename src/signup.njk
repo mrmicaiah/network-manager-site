@@ -78,20 +78,6 @@ description: Sign up for Bethany and start staying connected to the people who m
   </div>
 </section>
 
-<div id="success-modal" class="hidden fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-  <div class="bg-warm-white rounded-3xl p-8 max-w-md w-full shadow-medium text-center animate-fade-up">
-    <div class="w-16 h-16 rounded-full bg-sage/20 flex items-center justify-center mx-auto mb-6">
-      <span class="text-4xl">🎉</span>
-    </div>
-    <h2 class="font-display text-3xl font-medium text-charcoal mb-4">You're all set!</h2>
-    <p class="text-charcoal-light text-lg mb-6">Check your phone—I just sent you a welcome message. You can also log in to your dashboard to manage your contacts.</p>
-    <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <a href="{{ site.dashboardUrl }}/login?welcome=true" class="btn-primary">Go to Dashboard</a>
-      <a href="/" class="btn-secondary">Back to home</a>
-    </div>
-  </div>
-</div>
-
 <script>
 (function() {
   const form = document.getElementById('signup-form');
@@ -99,7 +85,6 @@ description: Sign up for Bethany and start staying connected to the people who m
   const btnText = document.getElementById('btn-text');
   const btnLoading = document.getElementById('btn-loading');
   const formError = document.getElementById('form-error');
-  const successModal = document.getElementById('success-modal');
   const API_URL = '{{ site.apiUrl }}';
   const DASHBOARD_URL = '{{ site.dashboardUrl }}';
 
@@ -156,11 +141,13 @@ description: Sign up for Bethany and start staying connected to the people who m
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
     clearErrors();
+    
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone = normalizePhoneDigits(document.getElementById('phone').value);
     const pin = document.getElementById('pin').value;
     const terms = document.getElementById('terms').checked;
+    
     let hasError = false;
     if (!name) { showError('name', 'Please enter your name'); hasError = true; }
     if (!email || !email.includes('@')) { showError('email', 'Please enter a valid email address'); hasError = true; }
@@ -168,27 +155,49 @@ description: Sign up for Bethany and start staying connected to the people who m
     if (pin.length !== 4) { showError('pin', 'Please enter a 4-digit PIN'); hasError = true; }
     if (!terms) { showError('terms', 'Please accept the terms to continue'); hasError = true; }
     if (hasError) return;
+    
     setLoading(true);
+    
     try {
       const response = await fetch(API_URL + '/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, email: email, phone: '+1' + phone, pin: pin, termsAccepted: true })
+        credentials: 'include',
+        body: JSON.stringify({ 
+          name: name, 
+          email: email, 
+          phone: '+1' + phone, 
+          pin: pin, 
+          termsAccepted: true 
+        })
       });
+      
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
-      successModal.classList.remove('hidden');
-      form.reset();
+      
+      if (!response.ok) {
+        // Handle field-specific errors
+        if (data.field) {
+          showError(data.field, data.error);
+        } else {
+          throw new Error(data.error || 'Something went wrong. Please try again.');
+        }
+        return;
+      }
+      
+      // Success! Redirect to the dashboard welcome page
+      // The session cookie was set by the API response
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        window.location.href = DASHBOARD_URL + '/welcome';
+      }
+      
     } catch (error) {
       formError.textContent = error.message;
       formError.classList.remove('hidden');
     } finally {
       setLoading(false);
     }
-  });
-
-  successModal.addEventListener('click', function(e) {
-    if (e.target === successModal) successModal.classList.add('hidden');
   });
 })();
 </script>
